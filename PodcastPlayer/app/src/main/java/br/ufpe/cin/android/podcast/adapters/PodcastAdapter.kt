@@ -32,8 +32,16 @@ class PodcastAdapter (private var episodes: List<ItemFeed>, private val applicat
         holder.title?.text = episode.title
         holder.pubDate?.text = episode.pubDate
 
+        setDownloadButtonVisibility(holder, episode)
+
         setOnItemViewClickListener(holder, episode)
         setOnDownloadButtonClickListener(holder, episode)
+    }
+
+    private fun setDownloadButtonVisibility(holder: ViewHolder, episode: ItemFeed) {
+        if (episode.episodePath != null) {
+            holder.downloadButton.visibility = View.GONE
+        }
     }
 
     private fun setOnItemViewClickListener(holder: ViewHolder, episode: ItemFeed) {

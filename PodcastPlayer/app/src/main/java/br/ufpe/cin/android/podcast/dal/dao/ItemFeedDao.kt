@@ -8,7 +8,7 @@ import br.ufpe.cin.android.podcast.ItemFeed
 
 @Dao
 interface ItemFeedDao  {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(episodes: List<ItemFeed>)
 
     @Query("UPDATE episodes SET episode_path = :episodePath WHERE download_link = :downloadLink")
