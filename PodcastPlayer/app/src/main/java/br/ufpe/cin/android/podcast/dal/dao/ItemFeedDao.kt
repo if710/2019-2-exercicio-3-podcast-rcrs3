@@ -11,6 +11,9 @@ interface ItemFeedDao  {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(episodes: List<ItemFeed>)
 
+    @Query("UPDATE episodes SET episode_path = :episodePath WHERE download_link = :downloadLink")
+    fun updateByDownloadLink(downloadLink: String, episodePath: String)
+
     @Query("SELECT * FROM episodes")
     fun selectAll(): List<ItemFeed>
 }

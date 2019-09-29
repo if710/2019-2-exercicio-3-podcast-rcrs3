@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import br.ufpe.cin.android.podcast.ItemFeed
 import br.ufpe.cin.android.podcast.dal.dao.ItemFeedDao
 
-@Database(entities = [ItemFeed::class], version = 1)
+@Database(entities = [ItemFeed::class], version = 2)
 abstract class ItemFeedDB : RoomDatabase() {
     abstract fun itemFeedDao(): ItemFeedDao
 
