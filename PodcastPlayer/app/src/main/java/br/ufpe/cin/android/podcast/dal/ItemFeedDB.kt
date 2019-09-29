@@ -21,6 +21,7 @@ abstract class ItemFeedDB : RoomDatabase() {
                         ctx.applicationContext,
                         ItemFeedDB::class.java,
                         "episodes")
+                        .fallbackToDestructiveMigration()
                         .build()
                 }
             }
