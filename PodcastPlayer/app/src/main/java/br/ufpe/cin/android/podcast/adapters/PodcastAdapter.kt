@@ -1,6 +1,7 @@
 package br.ufpe.cin.android.podcast.adapters
 
 import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import br.ufpe.cin.android.podcast.EpisodeDetailActivity
 import br.ufpe.cin.android.podcast.ItemFeed
 import br.ufpe.cin.android.podcast.MainActivity
 import br.ufpe.cin.android.podcast.R
+import br.ufpe.cin.android.podcast.services.DownloadService
 import kotlinx.android.synthetic.main.itemlista.view.*
 
 class PodcastAdapter (private var episodes: List<ItemFeed>, private val application: MainActivity):
@@ -30,10 +32,11 @@ class PodcastAdapter (private var episodes: List<ItemFeed>, private val applicat
         holder.title?.text = episode.title
         holder.pubDate?.text = episode.pubDate
 
-        setOnClickListener(holder, episode)
+        setOnItemViewClickListener(holder, episode)
+        setOnDownloadButtonClickListener(holder, episode)
     }
 
-    fun setOnClickListener(holder: ViewHolder, episode: ItemFeed) {
+    private fun setOnItemViewClickListener(holder: ViewHolder, episode: ItemFeed) {
         holder.itemView.setOnClickListener {
             val intent = Intent(application.applicationContext, EpisodeDetailActivity::class.java)
 
@@ -42,6 +45,16 @@ class PodcastAdapter (private var episodes: List<ItemFeed>, private val applicat
             intent.putExtra(EpisodeDetailActivity.EPISODE_DESCRIPTION, episode.description)
 
             application.startActivity(intent)
+        }
+    }
+
+    private fun setOnDownloadButtonClickListener(holder: ViewHolder, episode: ItemFeed) {
+        holder.downloadButton.setOnClickListener {
+            val intent = Intent(application.applicationContext, DownloadService::class.java)
+
+            intent.data = Uri.parse(episode.downloadLink)
+
+            application.startService(intent)
         }
     }
 
@@ -54,5 +67,6 @@ class PodcastAdapter (private var episodes: List<ItemFeed>, private val applicat
     class ViewHolder (episodeView : View) : RecyclerView.ViewHolder(episodeView) {
         val title = episodeView.item_title
         val pubDate = episodeView.item_date
+        val downloadButton = episodeView.item_action
     }
 }
