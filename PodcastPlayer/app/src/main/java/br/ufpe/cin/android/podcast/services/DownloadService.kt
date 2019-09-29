@@ -3,7 +3,6 @@ package br.ufpe.cin.android.podcast.services
 import android.app.IntentService
 import android.content.Intent
 import android.os.Environment.DIRECTORY_DOWNLOADS
-import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import br.ufpe.cin.android.podcast.dal.ItemFeedDB
 import java.io.BufferedOutputStream
@@ -38,8 +37,6 @@ class DownloadService : IntentService("DownloadService") {
 
             ItemFeedDB.getDatabase(applicationContext)
                 .itemFeedDao().updateByDownloadLink(downloadUri.toString(), output.path)
-
-            Toast.makeText(applicationContext, DOWNLOAD_COMPLETE_TEXT, Toast.LENGTH_SHORT).show()
         }
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(DOWNLOAD_COMPLETE))
@@ -47,19 +44,18 @@ class DownloadService : IntentService("DownloadService") {
 
     private fun tryToDownloadFile(connection: HttpURLConnection, outputStream: BufferedOutputStream) {
         val inputStream = connection.inputStream
-        val buffer = ByteArray(4096)
-        val length = inputStream.read(buffer)
+        val buffer = ByteArray(8192)
+        var length = inputStream.read(buffer)
 
         while (length >= 0) {
             outputStream.write(buffer, 0, length)
+            length = inputStream.read(buffer)
         }
-
         outputStream.flush()
     }
 
 
     companion object {
         const val DOWNLOAD_COMPLETE = "br.ufpe.cin.android.podcast.DOWNLOAD_COMPLETE"
-        const val DOWNLOAD_COMPLETE_TEXT = "Download successfully finished"
     }
 }
