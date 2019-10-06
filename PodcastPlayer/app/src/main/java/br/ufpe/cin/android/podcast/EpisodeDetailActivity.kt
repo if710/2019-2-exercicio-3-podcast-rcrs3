@@ -32,5 +32,6 @@ class EpisodeDetailActivity : AppCompatActivity() {
         const val EPISODE_TITLE = "title"
         const val EPISODE_DESCRIPTION = "description"
         const val EPISODE_LINK = "link"
+        const val EPISODE_LOCATION_PATH = "path"
     }
 }
