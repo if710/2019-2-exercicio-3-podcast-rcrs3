@@ -4,12 +4,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import java.io.FileInputStream
 
 class PodcastPlayerService : Service() {
     private val podcastPlayerBinder = PodcastPlayerBinder()
@@ -33,9 +35,8 @@ class PodcastPlayerService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-
         podcastPlayer?.release()
+        super.onDestroy()
     }
 
 
@@ -44,15 +45,23 @@ class PodcastPlayerService : Service() {
     }
 
     fun playMusic() {
-        if (!podcastPlayer!!.isPlaying) {
-            podcastPlayer?.start()
-        }
+        podcastPlayer?.start()
     }
 
     fun pauseMusic() {
-        if (podcastPlayer!!.isPlaying) {
-            podcastPlayer?.pause()
-        }
+        podcastPlayer?.pause()
+    }
+
+    fun isPlaying(): Boolean {
+        return podcastPlayer!!.isPlaying
+    }
+
+    fun setPodCastDataSource(url: String) {
+        val fis = FileInputStream(url)
+
+        podcastPlayer?.reset()
+        podcastPlayer?.setDataSource(fis.fd)
+        podcastPlayer?.prepare()
     }
 
     private fun createChannel() {
@@ -82,6 +91,10 @@ class PodcastPlayerService : Service() {
             .setOngoing(true).setContentTitle(NOTIFICATION_CONTENT_TITLE)
             .setContentText(NOTIFICATION_CONTENT_TEXT)
             .setContentIntent(pendingIntent).build()
+
+        // Notify about service starting
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, notification)
 
         // inicia em estado foreground, para ter prioridade na memoria
         // evita que seja facilmente eliminado pelo sistema

@@ -3,6 +3,7 @@ package br.ufpe.cin.android.podcast.services
 import android.app.IntentService
 import android.content.Intent
 import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import br.ufpe.cin.android.podcast.dal.ItemFeedDB
 import java.io.BufferedOutputStream
@@ -18,15 +19,15 @@ class DownloadService : IntentService("DownloadService") {
         root?.mkdirs()
 
         val output = File(root, downloadUri.lastPathSegment!!)
+        if (output.exists()) {
+            output.delete()
+        }
+
         val url = URL(downloadUri.toString())
         val fos = FileOutputStream(output.path)
         val out = BufferedOutputStream(fos)
 
         val connection = url.openConnection() as HttpURLConnection
-
-        if (output.exists()) {
-            output.delete()
-        }
 
         try {
             tryToDownloadFile(connection, out)
