@@ -21,10 +21,8 @@ class PodcastAdapter (private var episodes: List<ItemFeed>,
                       private val application: MainActivity):
     RecyclerView.Adapter<PodcastAdapter.ViewHolder>() {
     var isServiceBound: Boolean = false
-    var isPaused: Boolean = false
 
     private var podcastPlayerService: PodcastPlayerService? = null
-    private var currentEpisode: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val episodeView =
@@ -92,9 +90,9 @@ class PodcastAdapter (private var episodes: List<ItemFeed>,
         holder.playButton.setOnClickListener {
             if (isServiceBound) {
                 // If its a different episode, set it's data source
-                if (currentEpisode == null || !currentEpisode.equals(episode.episodePath!!)) {
+                if (podcastPlayerService!!.currentEpisode == null ||
+                    !podcastPlayerService!!.currentEpisode.equals(episode.episodePath!!)) {
                     podcastPlayerService!!.setPodCastDataSource(episode.episodePath!!)
-                    currentEpisode = episode.episodePath
                 }
 
                 // If the audio was paused, start from where was paused

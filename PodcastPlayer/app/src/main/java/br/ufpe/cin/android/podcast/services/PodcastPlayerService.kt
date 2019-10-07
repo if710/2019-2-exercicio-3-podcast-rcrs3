@@ -14,14 +14,15 @@ import androidx.core.app.NotificationCompat
 import br.ufpe.cin.android.podcast.dal.ItemFeedDB
 import br.ufpe.cin.android.podcast.dal.dao.ItemFeedDao
 import org.jetbrains.anko.doAsync
+import java.io.File
 import java.io.FileInputStream
 
 class PodcastPlayerService : Service() {
+    var currentEpisode: String? = null
     private val podcastPlayerBinder = PodcastPlayerBinder()
 
     private var db: ItemFeedDao? = null
     private var podcastPlayer: MediaPlayer? = null
-    private var currentEpisode: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -30,6 +31,10 @@ class PodcastPlayerService : Service() {
         podcastPlayer = MediaPlayer()
 
         podcastPlayer?.isLooping = false
+
+        podcastPlayer?.setOnCompletionListener {
+            deleteEpisode()
+        }
 
         createChannel()
         startForegroundService()
@@ -82,6 +87,13 @@ class PodcastPlayerService : Service() {
         podcastPlayer?.prepare()
 
         currentEpisode = url
+    }
+
+    private fun deleteEpisode() {
+        val episode = File(currentEpisode!!)
+
+        episode.delete()
+        currentEpisode = null
     }
 
     private fun createChannel() {
