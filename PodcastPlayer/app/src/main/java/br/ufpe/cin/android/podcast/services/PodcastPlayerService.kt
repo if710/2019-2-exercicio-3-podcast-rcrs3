@@ -11,17 +11,22 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import br.ufpe.cin.android.podcast.dal.ItemFeedDB
+import br.ufpe.cin.android.podcast.dal.dao.ItemFeedDao
+import org.jetbrains.anko.doAsync
 import java.io.FileInputStream
 
 class PodcastPlayerService : Service() {
     private val podcastPlayerBinder = PodcastPlayerBinder()
 
+    private var db: ItemFeedDao? = null
     private var podcastPlayer: MediaPlayer? = null
-
+    private var currentEpisode: String? = null
 
     override fun onCreate() {
         super.onCreate()
 
+        db = ItemFeedDB.getDatabase(applicationContext).itemFeedDao()
         podcastPlayer = MediaPlayer()
 
         podcastPlayer?.isLooping = false
@@ -45,10 +50,17 @@ class PodcastPlayerService : Service() {
     }
 
     fun playMusic() {
-        podcastPlayer?.start()
+        doAsync {
+            val seekTo = db!!.selectPausedAtByEpisodePath(currentEpisode!!)
+            podcastPlayer?.seekTo(seekTo)
+            podcastPlayer?.start()
+        }
     }
 
     fun pauseMusic() {
+        doAsync {
+            db!!.updatePausedAtByEpisodePath(currentEpisode!!, podcastPlayer!!.currentPosition)
+        }
         podcastPlayer?.pause()
     }
 
@@ -57,11 +69,19 @@ class PodcastPlayerService : Service() {
     }
 
     fun setPodCastDataSource(url: String) {
-        val fis = FileInputStream(url)
+        // If it's a different episode, start from beginning
+        if (currentEpisode == null || !currentEpisode.equals(url)) {
+            doAsync {
+                db!!.updatePausedAtByEpisodePath(url, 0)
+            }
+        }
 
+        val fis = FileInputStream(url)
         podcastPlayer?.reset()
         podcastPlayer?.setDataSource(fis.fd)
         podcastPlayer?.prepare()
+
+        currentEpisode = url
     }
 
     private fun createChannel() {

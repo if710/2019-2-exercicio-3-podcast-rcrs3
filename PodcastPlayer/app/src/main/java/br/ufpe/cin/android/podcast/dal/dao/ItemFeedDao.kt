@@ -16,4 +16,10 @@ interface ItemFeedDao  {
 
     @Query("SELECT * FROM episodes")
     fun selectAll(): List<ItemFeed>
+
+    @Query("UPDATE episodes SET paused_at = :pausedAt WHERE episode_path = :episodePath")
+    fun updatePausedAtByEpisodePath(episodePath: String, pausedAt: Int)
+
+    @Query("SELECT paused_at FROM episodes WHERE episode_path = :episodePath")
+    fun selectPausedAtByEpisodePath(episodePath: String): Int
 }
